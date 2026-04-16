@@ -1,7 +1,5 @@
 # 🔬 EAX Protocol — Agentic Attention & Autonomous Commerce
 
-### *Winner of Locus Paygentic Hackathon #1 (Week 1 Track: PayWithLocus Suite)*
-
 > **Privacy-first discovery powered by FHE. Autonomous execution powered by Locus Rails.**
 
 ---
