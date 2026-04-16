@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "AdScience",
+  "version": "1.0",
+  "description": "Private interest extraction & encrypted ad-matching primitive.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "service_worker": "scripts/background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "history",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.trycloudflare.com/*",
+    "http://localhost:11434/*",
+    "https://huggingface.co/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/transformers/*.wasm"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

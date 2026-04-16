@@ -1,0 +1,15 @@
+{
+  "name": "eax-sdk",
+  "version": "1.0.0",
+  "description": "EAX — Privacy-preserving ad exchange SDK. 3 function calls to integrate encrypted ad serving into any website.",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "keywords": ["fhe", "advertising", "privacy", "web3", "fhenix", "cofhe"],
+  "license": "MIT",
+  "peerDependencies": {
+    "ethers": "^6.0.0"
+  }
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdScience</title>
+  <link rel="stylesheet" href="styles/popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Desaturated cyber grid with vignette — no aurora -->
+  <div class="cyber-grid"></div>
+
+  <div class="container" id="app-container">
+
+    <!-- ===== HEADER (always visible) ===== -->
+    <header>
+      <div class="logo-row">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="6" fill="white"/>
+            <path d="M8 20L14 8L20 20" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="14" cy="16" r="2" fill="black"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="animate-shine">AdScience</h1>
+          <p class="subtitle" id="header-subtitle">Private Attention Market</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== PROGRESS STEPPER ===== -->
+    <div class="stepper">
+      <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Analyze</span></div>
+      <div class="step-line"></div>
+      <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Classify</span></div>
+      <div class="step-line"></div>
+      <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Encrypt</span></div>
+      <div class="step-line"></div>
+      <div class="step" data-step="4"><span class="step-num">4</span><span class="step-label">Match</span></div>
+    </div>
+
+    <!-- ===== MAIN CONTENT: STATE PANELS ===== -->
+    <main>
+
+      <!-- STATE 1: IDLE / EXTRACT -->
+      <section id="state-idle" class="state-panel active">
+        <div class="panel-card">
+          <div class="panel-icon">[?]</div>
+          <h2 id="idle-heading">Analyze Your Browsing</h2>
+          <p class="panel-desc">We'll scan your recent browsing history locally. <strong>No data leaves your device.</strong></p>
+          <button id="btn-extract" class="btn primary pulse-glow">
+            <span>Start Analysis</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STATE 2: EXTRACTING (loading) -->
+      <section id="state-extracting" class="state-panel">
+        <div class="panel-card">
+          <div class="spinner"></div>
+          <h2>Scanning History...</h2>
+          <p class="panel-desc" id="extract-status">Reading local browser data</p>
+        </div>
+      </section>
+
+      <!-- STATE 3: DOMAINS FOUND + LLM INFERENCE -->
+      <section id="state-domains" class="state-panel">
+        <div class="panel-card">
+          <div class="panel-icon">[WWW]</div>
+          <h2>Domains Extracted</h2>
+          <p class="panel-desc"><span id="domain-count">0</span> unique domains found</p>
+          <div class="domain-scroll">
+            <ul id="domain-list"></ul>
+          </div>
+          <button id="btn-classify" class="btn primary">
+            <span>Classify Interests</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STATE 4: CLASSIFYING (LLM mock loading) -->
+      <section id="state-classifying" class="state-panel">
+        <div class="panel-card">
+          <div class="spinner"></div>
+          <h2>Running Local Inference...</h2>
+          <p class="panel-desc">AI is categorizing your interests privately</p>
+          <div class="privacy-badge">
+            <span class="badge-dot"></span>
+            Privacy Preserved — On-Device Processing
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE 5: INTERESTS IDENTIFIED -->
+      <section id="state-interests" class="state-panel">
+        <div class="panel-card">
+          <div class="panel-icon">[*]</div>
+          <h2>Your Interest Vector</h2>
+          <div id="interest-tags" class="interest-tags"></div>
+          <div class="vector-display">
+            <span class="vector-label">Binary Vector:</span>
+            <code id="vector-code">[0, 0, 0, 0, 0]</code>
+          </div>
+          <button id="btn-encrypt" class="btn primary">
+            <span>Encrypt & Submit</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STATE 6: ENCRYPTING -->
+      <section id="state-encrypting" class="state-panel">
+        <div class="panel-card">
+          <div class="spinner"></div>
+          <h2>Encrypting with FHE...</h2>
+          <p class="panel-desc">Generating homomorphic ciphertext (simulated)</p>
+          <div class="hex-blob" id="hex-blob"></div>
+          <div class="privacy-badge">
+            <span class="badge-dot"></span>
+            Fully Homomorphic Encryption Active
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE 7: MATCHING -->
+      <section id="state-matching" class="state-panel">
+        <div class="panel-card">
+          <div class="spinner"></div>
+          <h2>On-Chain Matching...</h2>
+          <p class="panel-desc">Smart contract computing encrypted similarity scores (simulated)</p>
+          <div class="match-progress">
+            <div class="match-step" id="match-dot">⏳ Computing dot products...</div>
+            <div class="match-step" id="match-bid">⏳ Multiplying by bids...</div>
+            <div class="match-step" id="match-winner">⏳ Selecting winner...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE 8: RESULTS -->
+      <section id="state-results" class="state-panel">
+        <div class="panel-card results-card">
+          <div class="result-check">[OK]</div>
+          <h2>Match Complete!</h2>
+          
+          <div class="panel-desc" style="margin-top: 16px;">
+            The threshold network has verified your intent.
+          </div>
+
+          <div class="privacy-badge success">
+            <span class="badge-dot"></span>
+            Your intent has been privately matched. An ad is ready.
+          </div>
+          <button id="btn-restart" class="btn secondary">
+            <span>Run Again</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <div class="footer-shield">[#]</div>
+      <span>Your data never leaves your device.</span>
+    </footer>
+
+  </div>
+
+  <script type="module" src="scripts/popup.js"></script>
+</body>
+</html>

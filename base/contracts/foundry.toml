@@ -1,0 +1,9 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib", "node_modules"]
+
+remappings = [
+    "@fhenixprotocol/=node_modules/@fhenixprotocol/",
+    "@openzeppelin/=node_modules/@openzeppelin/"
+]

@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: theme('colors.foreground');
+  background: theme('colors.background');
+  /* Soft rose gradient background */
+  background: linear-gradient(135deg, #2e1022 0%, #4c0519 100%);
+  background-attachment: fixed;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2e1022;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fda4af;
+  border-radius: 4px;
+}

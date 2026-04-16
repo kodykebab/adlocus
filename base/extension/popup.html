@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EAX Attention Matching</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; width: 350px; padding: 20px; background: #000; color: #fff; }
+    h2 { margin-top: 0; color: #10b981; }
+    button { background: #10b981; color: #000; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: opacity 0.2s;}
+    button:hover { opacity: 0.8; }
+    button:disabled { background: #555; cursor: not-allowed; }
+    #status { margin-top: 15px; font-size: 14px; color: #aaa; white-space: pre-wrap; word-break: break-all; }
+    .hidden { display: none; }
+    .loader { margin: 10px auto; border: 3px solid #333; border-top: 3px solid #10b981; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+  <script type="module" src="popup.js"></script>
+</head>
+<body>
+  <h2>EAX Protocol</h2>
+  <p style="font-size: 14px; margin-bottom: 20px;">Analyze your browsing safely, encrypt your intent, and find advertisers who pay for your attention.</p>
+  
+  <button id="runBtn">Match My Attention</button>
+
+  <div id="loader" class="loader hidden"></div>
+  <div id="status"></div>
+</body>
+</html>
