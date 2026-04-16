@@ -84,7 +84,7 @@ export async function runMatch() {
   const { Ethers6Adapter } = await import("@cofhe/sdk/adapters");
   const { Encryptable } = await import("@cofhe/sdk");
 
-  const config = createCofheConfig({ supportedChains: [chains.sepolia] });
+  const config = createCofheConfig({ supportedChains: [chains.baseSepolia] });
   const cofheClient = createCofheClient(config);
 
   const { publicClient, walletClient } = await Ethers6Adapter(_provider, _signer);

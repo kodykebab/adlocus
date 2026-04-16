@@ -31,6 +31,11 @@ export default function RegisterAdvertiser() {
   const [adCta, setAdCta] = useState("Learn More");
   const [adLink, setAdLink] = useState("");
 
+  // Purchase agent metadata
+  const [purchaseAmount, setPurchaseAmount] = useState<string>("");
+  const [purchaseCurrency, setPurchaseCurrency] = useState<"USDC" | "ATTN">("USDC");
+  const [requiresConfirmation, setRequiresConfirmation] = useState(false);
+
   // Analytics state
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [lookupId, setLookupId] = useState("");
@@ -137,7 +142,17 @@ export default function RegisterAdvertiser() {
       const res = await fetch(`${BACKEND_URL}/registerAd`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ advertiserId, title: adTitle, image: adImage, cta: adCta, link: adLink, budget }),
+        body: JSON.stringify({
+          advertiserId,
+          title: adTitle,
+          image: adImage,
+          cta: adCta,
+          link: adLink,
+          budget,
+          purchaseAmount: purchaseAmount !== "" ? Number(purchaseAmount) : null,
+          purchaseCurrency,
+          requiresConfirmation,
+        }),
       });
 
       if (!res.ok) { setStatus(`On-chain OK but creative upload failed. Backend running?`); return; }
@@ -410,6 +425,74 @@ export default function RegisterAdvertiser() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* ─── Purchase Metadata (Locus Agent) ─── */}
+          <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="w-2 h-2 rounded-full bg-violet-400" />
+              <label className="text-sm font-medium text-white/80 tracking-wide uppercase">
+                Purchase Agent Metadata
+              </label>
+              <span className="text-xs text-white/30 font-mono ml-auto">optional · Locus powered</span>
+            </div>
+            <p className="text-xs text-white/40 mb-5 leading-relaxed">
+              If set, the EAX SDK will intercept CTA clicks and route payment through the Locus purchasing agent on Base instead of navigating directly to the landing page.
+            </p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs text-white/40 uppercase tracking-wide mb-2 font-mono">Purchase Amount</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="e.g. 10.00"
+                    value={purchaseAmount}
+                    onChange={(e) => setPurchaseAmount(e.target.value)}
+                    className="w-full bg-black text-white px-4 py-3 rounded-xl border border-white/10 focus:border-white/30 text-sm font-mono focus:outline-none transition-colors"
+                  />
+                </div>
+                <p className="text-[10px] text-white/25 mt-1 font-mono">Leave blank to disable agent</p>
+              </div>
+              <div>
+                <label className="block text-xs text-white/40 uppercase tracking-wide mb-2 font-mono">Currency</label>
+                <div className="flex gap-2">
+                  {(["USDC", "ATTN"] as const).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setPurchaseCurrency(c)}
+                      className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all border ${
+                        purchaseCurrency === c
+                          ? "bg-white text-black border-white"
+                          : "bg-white/[0.04] text-white/50 border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <label className="flex items-center gap-3 cursor-pointer select-none group">
+              <div
+                onClick={() => setRequiresConfirmation(!requiresConfirmation)}
+                className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${
+                  requiresConfirmation ? "bg-violet-500" : "bg-white/10"
+                }`}
+              >
+                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  requiresConfirmation ? "translate-x-6" : "translate-x-1"
+                }`} />
+              </div>
+              <div>
+                <span className="text-sm text-white/70">Require user confirmation</span>
+                <p className="text-[10px] text-white/30 font-mono mt-0.5">
+                  When on, purchases always show a confirm dialog regardless of amount threshold
+                </p>
+              </div>
+            </label>
           </div>
 
           {/* ─── Submit ─── */}

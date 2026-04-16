@@ -12,7 +12,7 @@ const integrations = [
   { name: "Ethers.js", category: "Contract SDK" },
   { name: "Wagmi", category: "React Hooks" },
   { name: "Next.js", category: "Framework" },
-  { name: "Sepolia", category: "Testnet" },
+  { name: "Base Sepolia", category: "Testnet" },
   { name: "WASM", category: "Runtime" },
   { name: "ZK Proofs", category: "Cryptography" },
 ];

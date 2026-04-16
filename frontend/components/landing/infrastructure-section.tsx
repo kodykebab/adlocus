@@ -6,7 +6,7 @@ const layers = [
   { name: "Chrome Extension", role: "Local ML Inference", latency: "In-browser" },
   { name: "EAX dApp", role: "Encryption & Matching", latency: "Next.js" },
   { name: "Fhenix CoFHE", role: "FHE Coprocessor", latency: "ZK Pipeline" },
-  { name: "Ethereum Sepolia", role: "Smart Contracts", latency: "On-chain" },
+  { name: "Base Sepolia", role: "Smart Contracts", latency: "On-chain" },
   { name: "Backend Relay", role: "Ad Creative Storage", latency: "Express.js" },
   { name: "Publisher SDK", role: "Cross-Site Serving", latency: "Vanilla JS" },
 ];

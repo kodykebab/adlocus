@@ -17,8 +17,8 @@ const codeExamples = [
     code: `import { initEAX } from 'eax-sdk'
 
 await initEAX({
-  contractAddress: '0xd445...',
-  backendUrl: 'https://api.eax.dev'
+  contractAddress: '0x5277536D859564A314B0Eb6d74d4A9dEC9817F3D',
+  backendUrl: 'http://localhost:4000'
 })`,
   },
   {

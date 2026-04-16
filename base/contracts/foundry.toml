@@ -7,3 +7,6 @@ remappings = [
     "@fhenixprotocol/=node_modules/@fhenixprotocol/",
     "@openzeppelin/=node_modules/@openzeppelin/"
 ]
+
+[rpc_endpoints]
+base_sepolia = "https://sepolia.base.org"

@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ethers, BrowserProvider } from "ethers";
 import EAXJson from "../../contracts/out/EAX.sol/EAX.json";
 import Link from "next/link";
+import { ConnectWallet } from "@/components/ConnectWallet";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
@@ -11,6 +12,11 @@ export default function PublisherDemo() {
   const [ad, setAd] = useState<any>(null);
   const [impression, setImpression] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Purchase agent state
+  const [purchaseStatus, setPurchaseStatus] = useState<string | null>(null);
+  const [purchaseRecord, setPurchaseRecord] = useState<any>(null);
+  const [awaitingConfirm, setAwaitingConfirm] = useState(false);
 
   useEffect(() => { checkAndServe(); }, []);
 
@@ -80,6 +86,83 @@ export default function PublisherDemo() {
     }
   };
 
+  // ── Locus Purchase Agent ──────────────────────────────────────────
+  const handlePurchase = async () => {
+    if (!ad) return;
+    if (!window.ethereum) { setPurchaseStatus("No wallet detected."); return; }
+
+    setPurchaseStatus("Checking policy...");
+    setPurchaseRecord(null);
+    setAwaitingConfirm(false);
+
+    try {
+      const provider = new BrowserProvider(window.ethereum as any);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      const res = await fetch(`${BACKEND_URL}/agent/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userAddress,
+          merchantId: String(ad.advertiserId),
+          amount: ad.purchaseAmount,
+          currency: ad.purchaseCurrency || "USDC",
+          description: `EAX Ad: ${ad.title}`,
+          requiresConfirmation: ad.requiresConfirmation || false,
+        }),
+      });
+
+      const record = await res.json();
+      setPurchaseRecord(record);
+
+      if (record.status === "completed") {
+        setPurchaseStatus(`✅ Purchase complete — ${ad.purchaseAmount} ${ad.purchaseCurrency || "USDC"} sent!`);
+        setTimeout(() => window.open(ad.link, "_blank", "noopener,noreferrer"), 1000);
+        return;
+      }
+
+      if (record.status === "pending_confirmation") {
+        setPurchaseStatus(`Confirm purchase of ${ad.purchaseAmount} ${ad.purchaseCurrency || "USDC"}?`);
+        setAwaitingConfirm(true);
+        return;
+      }
+
+      // Declined / rate_limited / duplicate / rejected
+      setPurchaseStatus(`Purchase declined: ${record.reason}`);
+    } catch (err: any) {
+      setPurchaseStatus(`Error: ${err.message}`);
+    }
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!purchaseRecord?.requestId) return;
+    setAwaitingConfirm(false);
+    setPurchaseStatus("Confirming...");
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/agent/purchase/${purchaseRecord.requestId}/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const confirmed = await res.json();
+
+      if (confirmed.approvalUrl) {
+        setPurchaseStatus("⏳ Awaiting human approval in Locus dashboard.");
+      } else if (confirmed.status === "completed") {
+        setPurchaseStatus(`✅ Purchase confirmed! Navigating to ${ad.link}...`);
+        setTimeout(() => window.open(ad.link, "_blank", "noopener,noreferrer"), 1200);
+      } else {
+        setPurchaseStatus(`Status: ${confirmed.status}`);
+      }
+    } catch (err: any) {
+      setPurchaseStatus(`Confirmation error: ${err.message}`);
+    }
+  };
+
+  const hasPurchase = ad && ad.purchaseAmount != null && ad.purchaseAmount > 0;
+
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans">
       {/* Top nav */}
@@ -88,13 +171,14 @@ export default function PublisherDemo() {
           <span className="text-xl font-display">EAX</span>
           <span className="text-xs text-white/40 font-mono">protocol</span>
         </Link>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-4">
           <Link href="/advertiser" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
             For Advertisers
           </Link>
-          <Link href="/" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
-            ← Home
+          <Link href="/app" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
+            Match Intent
           </Link>
+          <ConnectWallet />
         </div>
       </div>
 
@@ -144,10 +228,18 @@ await renderAd(slot, ad);     // renders + triggers payout`}</code></pre>
             <div className="border border-white/10 rounded-2xl overflow-hidden">
               <div className="px-5 py-3 border-b border-white/10 flex items-center justify-between">
                 <span className="text-xs font-mono text-white/30 uppercase tracking-widest">Ad Slot — EAX SDK</span>
-                <span className="text-[11px] text-white/20 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  Privacy-preserving
-                </span>
+                <div className="flex items-center gap-3">
+                  {hasPurchase && (
+                    <span className="text-[11px] text-violet-400/80 flex items-center gap-1.5 bg-violet-400/10 border border-violet-400/20 px-2.5 py-1 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                      Locus Pay enabled
+                    </span>
+                  )}
+                  <span className="text-[11px] text-white/20 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    Privacy-preserving
+                  </span>
+                </div>
               </div>
               
               <div className="p-8 flex justify-center">
@@ -159,12 +251,45 @@ await renderAd(slot, ad);     // renders + triggers payout`}</code></pre>
                     <span className="bg-white/10 border border-white/15 px-2.5 py-0.5 rounded text-[11px] text-white/60 tracking-wide font-mono">EAX AD</span>
                   </div>
                   <h3 className="text-2xl font-display text-white mb-4">{ad.title}</h3>
-                  <a 
-                    href={ad.link} target="_blank" rel="noopener noreferrer" 
-                    className="inline-block bg-white text-black px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-white/90 transition-colors"
-                  >
-                    {ad.cta || "Learn More"}
-                  </a>
+
+                  {/* CTA — Locus purchase or regular link */}
+                  {hasPurchase ? (
+                    <div className="space-y-3">
+                      <button
+                        onClick={handlePurchase}
+                        disabled={!!purchaseStatus && !purchaseStatus.startsWith("✅") && !purchaseStatus.startsWith("Declined")}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-pink-600 text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                      >
+                        {ad.cta || "Buy Now"}
+                        <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded-full font-mono">
+                          {ad.purchaseAmount} {ad.purchaseCurrency || "USDC"}
+                        </span>
+                      </button>
+
+                      {purchaseStatus && (
+                        <div className={`text-sm font-mono mt-2 ${purchaseStatus.startsWith("✅") ? "text-emerald-400" : purchaseStatus.startsWith("Purchase declined") || purchaseStatus.startsWith("Error") ? "text-red-400" : "text-violet-400"}`}>
+                          {purchaseStatus}
+                        </div>
+                      )}
+
+                      {awaitingConfirm && (
+                        <button
+                          onClick={handleConfirmPurchase}
+                          className="mt-2 bg-white text-black px-5 py-2 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors"
+                        >
+                          Yes, confirm purchase
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <a 
+                      href={ad.link} target="_blank" rel="noopener noreferrer" 
+                      className="inline-block bg-white text-black px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-white/90 transition-colors"
+                    >
+                      {ad.cta || "Learn More"}
+                    </a>
+                  )}
+
                   <p className="mt-4 text-[11px] text-white/30">🔒 Matched via encrypted intent vectors</p>
                 </div>
               </div>

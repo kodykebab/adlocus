@@ -1,14 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useChainId, useAccount } from 'wagmi';
+import { baseSepolia } from 'wagmi/chains';
 import { ethers, BrowserProvider } from "ethers";
 import EAXJson from "../../contracts/out/EAX.sol/EAX.json";
 import Link from "next/link";
+import { ConnectWallet } from "@/components/ConnectWallet";
 
 export default function AppPage() {
   const [vector, setVector] = useState<number[] | null>(null);
   const [status, setStatus] = useState("Waiting for Chrome Extension...");
   const [txHash, setTxHash] = useState("");
   const [advertiserId, setAdvertiserId] = useState<number | null>(null);
+  const chainId = useChainId();
+  const { isConnected } = useAccount();
+  const isWrongNetwork = isConnected && chainId !== baseSepolia.id;
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -37,12 +43,12 @@ export default function AppPage() {
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
       
-      setStatus("Connecting to Ethereum Sepolia CoFHE Network...");
+      setStatus("Connecting to Base Sepolia CoFHE Network...");
       const { createCofheConfig, createCofheClient } = await import('@cofhe/sdk/web');
       const { chains } = await import('@cofhe/sdk/chains');
       const { Ethers6Adapter } = await import('@cofhe/sdk/adapters');
 
-      const config = createCofheConfig({ supportedChains: [chains.sepolia] });
+      const config = createCofheConfig({ supportedChains: [chains.baseSepolia] });
       const cofheClient = createCofheClient(config);
 
       const { publicClient, walletClient } = await Ethers6Adapter(provider, signer);
@@ -138,6 +144,23 @@ export default function AppPage() {
 
   const categories = ["crypto", "ai", "finance", "gaming", "dev"];
 
+  // Show network guard before anything else
+  if (isWrongNetwork) {
+    return (
+      <div className="min-h-screen bg-[#030303] text-white font-sans flex items-center justify-center">
+        <div className="text-center max-w-sm">
+          <div className="text-5xl mb-6">⛓️</div>
+          <h2 className="text-2xl font-display text-white mb-3">Wrong Network</h2>
+          <p className="text-white/50 text-sm mb-8">
+            EAX runs on <span className="text-white">Base Sepolia</span> (chainId 84532).<br />
+            Please switch your wallet network to continue.
+          </p>
+          <ConnectWallet />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans">
       {/* Top nav */}
@@ -146,16 +169,14 @@ export default function AppPage() {
           <span className="text-xl font-display">EAX</span>
           <span className="text-xs text-white/40 font-mono">protocol</span>
         </Link>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-4">
           <Link href="/demo" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
             Publisher Demo
           </Link>
           <Link href="/advertiser" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
             For Advertisers
           </Link>
-          <Link href="/" className="text-white/50 hover:text-white text-sm transition-colors px-4 py-2 border border-white/10 rounded-lg hover:border-white/25">
-            ← Home
-          </Link>
+          <ConnectWallet />
         </div>
       </div>
 
